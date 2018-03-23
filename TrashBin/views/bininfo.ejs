@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Bin Info</title>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+        <link rel='stylesheet' href='/stylesheets/style.css' />
+         <style type="text/css">
+            #map{
+
+                 height: 400px;
+                 width: 100%;
+                }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <a href="/home/<%= userName %>/bins"><button class="waves-effect waves-light btn-large" name="action">Back</button></a>
+            <a href="/logout"><button class="waves-effect waves-light btn-large right" id="btnLogout">Logout</button></a>
+
+            <div class="row" id="divDataForm" style="display:none; visibility: hidden">
+                <div class="col s12 m6">
+                    <form action="/home/<%= userName %>/bins/<%= binId %>" method="post">
+                        <div class="card blue-grey darken-1">
+                            <div class="card-content white-text">
+                                <span class="card-title">Add Data</span>
+                                <div class="row">
+                                    <div class="col s6 m6 l6">
+                                        <input type="text" id="percentage" name="percentage" placeholder="Enter Percentage">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-action">
+                                <button type="submit" class="waves-effect waves-light btn">Add Data</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="row" style="margin-top: 30px;">
+                <table class="bordered centered responsive-table highlight">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Bin Size</th>
+                            <th>Distance from sensor</th>
+                            <th>Waste height</th>
+                            <th>Bin filled percentage</th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                      <script> var ana = []; </script>
+
+                        <% data.forEach(function(binInfo, idx, array) { %>
+                            <tr>
+                                <td><%= binInfo.time  %></td>
+                                <td><%= binInfo.size  %></td>
+                                <td><%= binInfo.distance %></td>
+                                <td><%= binInfo.waste %></td>
+                                <td><%= binInfo.percentage %></td>
+                                <td><%= binInfo.latitude %></td>
+                                <td><%= binInfo.longitude %></td>
+                            </tr>
+
+                            <script> 
+                               // var ana;
+                                var itm = <%= binInfo.percentage %>;
+                                ana.push(itm); 
+                                console.log(ana);
+                            </script>
+                            
+                            <% if (idx === array.length - 1) { %>
+                                <script>
+                                      var lati =  <%= binInfo.latitude %>;
+                                      var longi = <%= binInfo.longitude %>;
+                                      var size = <%= binInfo.size %>;
+                                
+                                </script>
+
+                                
+                                <% } %>
+
+                        <% }); %>
+
+
+
+                    </tbody>
+                </table>
+            </div>
+            <div id="chartContainer1" class="row col s12" style="margin-top: 80px;"></div>
+            <div id="chartContainer2" class="row col s12" style="margin-top: 440px;"></div>
+            <div id="map" style="margin-top: 440px;"></div>
+        </div>
+
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+        <script src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+        <script src="https://canvasjs.com/assets/script/jquery.canvasjs.min.js"></script>
+
+
+
+        <script>
+            var i;
+			var count = 0;
+			var flag = false;
+			var length = ana.length;
+			for (i = 0; i < ana.length; i++){
+
+				console.log(ana[i]);
+				if (ana[i] >= 60.0 ){
+					flag = true;
+					//console.log(flag);
+				}
+				if (ana[i] <= 10.0){
+					if(flag == true){
+						count = count + 1;
+						flag = false;
+			//   console.log(flag);
+			//   console.log(count);
+					}
+
+				}
+
+			}
+			console.log(count);
+		</script>
+
+
+        <script>
+            var btnAddData = document.getElementById('btnAddData');
+            var divDataForm = document.getElementById('divDataForm');
+            var clicked = false;
+
+            btnAddData.addEventListener('click', function(event) {
+                clicked = !clicked;
+                if (clicked) {
+                    divDataForm.setAttribute('style', 'display: in-block; visibility: visible;');
+                } else {
+                    divDataForm.setAttribute('style', 'display: none; visibility: hidden;');
+                }
+            });
+        </script>
+        <script>
+            $('document').ready(function() {
+                var data = <%- JSON.stringify(data) %>;
+                var tempData = $.map(data, function(el) { return el });
+                var items1 = [];
+                var items2 = [];
+        
+            
+                tempData.forEach(function(item) {
+                    items1.push({ label: item.time, y: item.percentage });
+                });
+                tempData.forEach(function(item) {
+                    items2.push({ label: item.time, y: item.waste });
+                });
+
+
+
+                $("#chartContainer1").CanvasJSChart({
+                    title: {
+                        text: "Percentage vs Time"
+                    },
+                    axisY: {
+                        title: "Percentage(%)",
+                        includeZero: false
+                    },
+                    axisX: {
+                        title: "Time",
+                        // interval: 10
+                    },
+                    data: [
+                        {
+                            type: "line",
+                            toolTipContent: "{label}: {y} %",
+                            dataPoints: items1
+                        }
+                    ]
+                });
+
+                $("#chartContainer2").CanvasJSChart({
+                    title: {
+                        text: "Waste Height vs Time"
+                    },
+                    axisY: {
+                        title: "Waste-height(cm)",
+                        includeZero: false
+                    },
+                    axisX: {
+                        title: "Time",
+                        // interval: 10
+                    },
+                    data: [
+                        {
+                            type: "line",
+                            toolTipContent: "{label}: {y} cm",
+                            dataPoints: items2
+                        }
+                    ]
+                });
+
+
+            });
+        </script>
+
+    <script>
+          
+        
+        function initMap() {
+            //map options
+
+            var options = {
+                zoom:15,
+                center: {lat:lati, lng:longi}
+            }   
+            //new map
+            var map = new 
+            google.maps.Map(document.getElementById('map'), options);
+            //add marker
+            var marker = new google.maps.Marker({
+                position: {lat: lati, lng:longi},
+                map: map,
+                //icon: ''
+
+   
+
+            });
+
+            var infoWindow = new google.maps.InfoWindow({
+                content: 'Bin Size: ' + size.toString() + ' cm' + '<br>Bin Cleaned: ' + count.toString() + ' times '
+                                                                
+            });
+
+            marker.addListener('click', function(){
+                infoWindow.open(map, marker)
+            });
+
+
+        }
+    </script>
+
+    <script async defer
+	
+	src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD33uYfCgKcN6js13_NTutLCep19ZdgNEg&callback=initMap">
+    
+    </script>
+
+
+    </body>
+</html>

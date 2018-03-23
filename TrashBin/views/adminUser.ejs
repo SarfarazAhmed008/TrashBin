@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>User</title>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+        <link rel='stylesheet' href='/stylesheets/style.css' />
+    </head>
+    <body>
+        <div class="container">
+            <button class="waves-effect waves-light btn-large" id="btnAddBin">Add Bin</button>
+            <a href="/admin/home"><button class="waves-effect waves-light btn-large" name="action">Back</button></a>
+            <a href="/logout"><button class="waves-effect waves-light btn-large right" id="btnLogout">Logout</button></a>
+
+            <div class="row" id="divBinForm" style="display:none; visibility: hidden">
+                <div class="col s12 m6">
+                    <form action="/admin/<%= userId %>/bins" method="post">
+                        <div class="card blue-grey darken-1">
+                            <div class="card-content white-text">
+                                <span class="card-title">Add Bin</span>
+                                <div class="row">
+                                    <div class="col s6 m6 l6">
+                                        <input type="text" id="binId" name="binId" placeholder="Enter Bin Id">
+                                    </div>
+                                    <div class="col s6 m6 l6">
+                                        <input type="text" id="binPassword" name="binPassword" placeholder="Enter Bin Password">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-action">
+                                <button type="submit" class="waves-effect waves-light btn">Add Bin</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row">
+                <% var keys = Object.keys(bins); %>
+                <% keys.forEach(function(key) { %>
+                    <% var binKeys = Object.keys(bins[key]); %>
+                    <% var last = binKeys.length - 1; %>
+                    <div class="col s3 m3 l3">
+                        <div id="card" class="card blue-grey darken-1">
+                            <div class="card-content white-text">
+                                <span class="card-title"><%= bins[key][binKeys[last-1]].binID %></span>
+                                <p>Size: <%= bins[key][binKeys[last-1]].binsize %></p>
+                                <p id="percent" style="display: none; visibility: hidden;"><%= bins[key][binKeys[last-1]].percent %></p>
+                            </div>
+                            <div class="card-action">
+                                <a href="/admin/<%= userId %>/bins/<%= key %>/"><button id="btnShowBinInfo" class="waves-effect waves-light btn">Show Bin Info</button></a>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+        <script>
+            var btnAddBin = document.getElementById('btnAddBin');
+            var divBinForm = document.getElementById('divBinForm');
+            var clicked = false;
+
+            var percent = document.getElementById('percent').innerHTML;
+            if (percent == 100) {
+                var card = document.getElementById('card');
+                card.classList.remove('blue-grey');
+                card.classList.add('red');
+            }
+
+            btnAddBin.addEventListener('click', function(event) {
+                clicked = !clicked;
+                if (clicked) {
+                    divBinForm.setAttribute('style', 'display: in-block; visibility: visible;');
+                } else {
+                    divBinForm.setAttribute('style', 'display: none; visibility: hidden;');
+                }
+            });
+
+
+        </script>
+  </body>
+</html>

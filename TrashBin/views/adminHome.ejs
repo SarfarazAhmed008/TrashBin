@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Admin</title>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+        <link rel='stylesheet' href='/stylesheets/style.css' />
+    </head>
+    <body>
+        <div class="container">
+            <a href="/logout"><button class="waves-effect waves-light btn-large right" id="btnLogout">Logout</button></a>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email ID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% keys = Object.keys(users); %>
+                    <% keys.forEach(function(key) { %>
+                        <tr>
+                            <td><a href="/admin/<%= key %>"><%= users[key].firstName + ' ' + users[key].lastName %></a></td>
+                            <td><%= users[key].email %></td>
+                            
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+        <script>
+            var btnAddBin = document.getElementById('btnAddBin');
+            var divBinForm = document.getElementById('divBinForm');
+            var clicked = false;
+
+            btnAddBin.addEventListener('click', function(event) {
+                clicked = !clicked;
+                if (clicked) {
+                    divBinForm.setAttribute('style', 'display: in-block; visibility: visible;');
+                } else {
+                    divBinForm.setAttribute('style', 'display: none; visibility: hidden;');
+                }
+            });
+        </script>
+  </body>
+</html>

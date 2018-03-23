@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Bin Info</title>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+        <link rel='stylesheet' href='/stylesheets/style.css' />
+    </head>
+    <body>
+        <div class="container">
+            <a href="/admin/<%= userId %>"><button class="waves-effect waves-light btn-large" name="action">Back</button></a>
+            <a href="/logout"><button class="waves-effect waves-light btn-large right" id="btnLogout">Logout</button></a>
+
+            <div class="row" style="margin-top: 30px;">
+                <table class="bordered">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Bin Size</th>
+                            <th>Distance</th>
+                            <th>Waste</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% data.forEach(function(binInfo) { %>
+                            <tr>
+                                <td><%= binInfo.time  %></td>
+                                <td><%= binInfo.size  %></td>
+                                <td><%= binInfo.distance %></td>
+                                <td><%= binInfo.waste %></td>
+                                <td><%= binInfo.percentage %></td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <div id="chartContainer"></div>
+            </div>
+        </div>
+
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+        <script src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+        <script src="https://canvasjs.com/assets/script/jquery.canvasjs.min.js"></script>
+        <script>
+            var btnAddData = document.getElementById('btnAddData');
+            var divDataForm = document.getElementById('divDataForm');
+            var clicked = false;
+
+            btnAddData.addEventListener('click', function(event) {
+                clicked = !clicked;
+                if (clicked) {
+                    divDataForm.setAttribute('style', 'display: in-block; visibility: visible;');
+                } else {
+                    divDataForm.setAttribute('style', 'display: none; visibility: hidden;');
+                }
+            });
+        </script>
+        <script>
+            $('document').ready(function() {
+                var data = <%- JSON.stringify(data) %>;
+                var tempData = $.map(data, function(el) { return el });
+                var items = [];
+
+                tempData.forEach(function(item) {
+                    items.push({ label: item.time, y: item.percentage });
+                });
+
+                $("#chartContainer").CanvasJSChart({
+                    title: {
+                        text: "Percentage"
+                    },
+                    axisY: {
+                        title: "Percentage(%)",
+                        includeZero: false
+                    },
+                    axisX: {
+                        interval: 1
+                    },
+                    data: [
+                        {
+                            type: "line",
+                            toolTipContent: "{label}: {y} %",
+                            dataPoints: items
+                        }
+                    ]
+                });
+            });
+        </script>
+    </body>
+</html>
